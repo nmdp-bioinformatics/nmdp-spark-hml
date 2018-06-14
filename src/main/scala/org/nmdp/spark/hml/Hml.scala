@@ -23,7 +23,7 @@ object Hml {
     }
 
     val dfWithAlleles = df
-      .withColumn("alleles", glaParser($"typing.allele-assignment.glstring"))
+      .withColumn("alleles", glaStringParser(col("typing.allele-assignment.glstring")))
 
     dfWithAlleles
   }
