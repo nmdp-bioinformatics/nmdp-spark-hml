@@ -1,9 +1,8 @@
 package org.nmdp.spark.hml
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
-import org.apache.spark.sql.functions.split
-import org.apache.spark.sql.functions.col
-
+import org.apache.spark.sql.functions.{ split, col, udf }
+import scala.collection.mutable.WrappedArray
 
 
 object Hml {
@@ -18,11 +17,13 @@ object Hml {
 
 
     val glStringRegexp = "\\^|\\||\\+|\\~|\\/"
+
+    val glaStringParser= udf{
+      glstrings: WrappedArray[String] => glstrings.flatMap(x => x.split(glStringRegexp))
+    }
+
     val dfWithAlleles = df
-      .withColumn("alleles",
-        split(
-          col("typing.allele-assignment.glstring"),
-          glStringRegexp))
+      .withColumn("alleles", glaParser($"typing.allele-assignment.glstring"))
 
     dfWithAlleles
   }
