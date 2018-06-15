@@ -29,6 +29,9 @@ object Hml {
       glstring: String => glstring.split(glStringRegexp)
     }
 
+    //Use regex to find the data type of column typing.allele-assignment.glstring. 
+    //If it's an array, use hlaGlaStringParser. Otherwise, use kirGlaStringParser
+    
     df.select("typing.allele-assignment.glstring").dtypes(0)._2 match {
       case typeRegex() => df.withColumn("alleles", hlaGlaStringParser(col("typing.allele-assignment.glstring")))
       case _ => df.withColumn("alleles", kirGlaStringParser(col("typing.allele-assignment.glstring")))
