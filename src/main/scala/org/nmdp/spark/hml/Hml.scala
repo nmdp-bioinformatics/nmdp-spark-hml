@@ -5,6 +5,7 @@ import org.apache.spark.sql.functions.{ split, col, udf }
 import scala.collection.mutable.WrappedArray
 
 
+
 object Hml {
 
   def toDataFrame(sqlContext: SQLContext, hmlFile: String): DataFrame = {
@@ -18,14 +19,21 @@ object Hml {
 
     val glStringRegexp = "\\^|\\||\\+|\\~|\\/"
 
-    val glaStringParser= udf{
+    val typeRegex = "ArrayType.*".r
+
+    val hlaGlaStringParser= udf{
       glstrings: WrappedArray[String] => glstrings.flatMap(x => x.split(glStringRegexp))
     }
 
-    val dfWithAlleles = df
-      .withColumn("alleles", glaStringParser(col("typing.allele-assignment.glstring")))
+    val kirGlaStringParser= udf{
+      glstring: String => glstring.split(glStringRegexp)
+    }
 
-    dfWithAlleles
+    df.select("typing.allele-assignment.glstring").dtypes(0)._2 match {
+      case typeRegex() => df.withColumn("alleles", hlaGlaStringParser(col("typing.allele-assignment.glstring")))
+      case _ => df.withColumn("alleles", kirGlaStringParser(col("typing.allele-assignment.glstring")))
+
+    }
   }
 
 }
