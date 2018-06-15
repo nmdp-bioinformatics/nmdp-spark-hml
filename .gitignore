@@ -149,4 +149,5 @@ docs/_build/
 # Autoenv
 .env
 *~
+.DS_Store
 
