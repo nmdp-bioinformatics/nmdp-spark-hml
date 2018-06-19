@@ -15,10 +15,8 @@ object Hml {
       .option("rootTag", "hml")
       .option("rowTag", "sample")
       .load(hmlFile)
-
     val glStringRegexp = "\\^|\\||\\+|\\~|\\/"
     val typeRegex = "ArrayType.*".r
-
     val multipleGlStringParser= udf{
       glstrings: WrappedArray[String] => glstrings.flatMap(x => x.split(glStringRegexp))
     }
@@ -30,7 +28,6 @@ object Hml {
     val newDF = df.select("typing.allele-assignment.glstring").dtypes(0)._2 match {
       case typeRegex() => df.withColumn("alleles", multipleGlStringParser(col("typing.allele-assignment.glstring")))
       case _ => df.withColumn("alleles", singleGlStringParser(col("typing.allele-assignment.glstring")))
-
     }
     val cols = newDF.columns
     val renamedCols = cols.map(x => x.replace("_", ""))
